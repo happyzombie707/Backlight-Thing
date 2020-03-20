@@ -15,8 +15,8 @@ _Values must be a percentage or an integer._
 
 
 #### Installing:
-To install move or link the script somewhere in your PATH (e.g. `/usr/bin`)
+To install, move or link the script somewhere in your PATH (e.g. `/usr/bin`)
 
-If desired, the systemd service can be used to change the write permission of the backlight file to allow use without sudo. Move it to the appropriate location and enable the service. 
+If desired the systemd service can be used to change the write permission of the backlight file, allowing use without sudo. Move it to the appropriate location and enable the service. 
 `# cp backlight-permission.service`
-`# sudo systemctl enable backlight-permission.service`
+`# systemctl enable backlight-permission.service`
