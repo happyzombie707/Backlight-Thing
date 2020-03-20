@@ -1,6 +1,6 @@
 ### Backlight.py
 Command line tool to change backlight brightness.
-Only works with intel graphics, only tested on Fedora 27.
+Only works with intel graphics.
 
 * -i  -  increment backlight
 * -d  -  decrement backlight
@@ -9,6 +9,14 @@ Only works with intel graphics, only tested on Fedora 27.
 
 #### Examples:
 _Values must be a percentage or an integer._
-* backlight -i 100  -  increase by 100
-* backlight -d 10%%  -  decrease by 10%
-* backlight -s 50%%  -  set to 50%
+* `backlight -i 100  -  increase by 100`
+* `backlight -d 10% -  decrease by 10%`
+* `backlight -s 50%  -  set to 50%`
+
+
+#### Installing:
+To install move or link the script somewhere in your PATH (e.g. `/usr/bin`)
+
+If desired, the systemd service can be used to change the write permission of the backlight file to allow use without sudo. Move it to the appropriate location and enable the service. 
+`# cp backlight-permission.service`
+`# sudo systemctl enable backlight-permission.service`

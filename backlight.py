@@ -1,4 +1,4 @@
-#!/bin/python
+#!/bin/python3
 
 import sys
 from enum import Enum
@@ -10,6 +10,11 @@ class Mode(Enum):
     DEC = 1
     SET = 2
     READ = 3
+
+#backlight files
+BACKLIGHT_DIR = "/sys/class/backlight/intel_backlight/"
+BACKLIGHT_FILE = BACKLIGHT_DIR + "brightness"
+BACKLIGHT_MAX = BACKLIGHT_DIR + "max_brightness"
 
 #clamp a value between a minimum and a maximum
 def clamp(n, n_min, n_max):
@@ -25,16 +30,15 @@ def show_help():
           "\nExamples:\n"+
           "\t\x1B[3mValues must be a percentage or an integer.\x1B[23m\n"+
           "\tbacklight -i 100  -  increase by 100\n" +
-          "\tbacklight -d 10%%  -  decrease by 10%\n"+
-          "\tbacklight -s 50%%  -  set to 50%\n")
+          "\tbacklight -d 10%  -  decrease by 10%\n"+
+          "\tbacklight -s 50%  -  set to 50%\n")
 
     sys.exit(0)
 
 #sets backlight to th new value
 def set_brightness(new_value):
-
     #open file, write new value and close
-    backlight_file = open("/sys/class/backlight/intel_backlight/brightness", "w")
+    backlight_file = open(BACKLIGHT_FILE, "w")
     backlight_file.write(repr(new_value) + "\n")
     backlight_file.close()
 
@@ -43,17 +47,17 @@ def set_brightness(new_value):
 def parse_value(val, mode):
 
     #find current brightness
-    current_backlight_file = open("/sys/class/backlight/intel_backlight/brightness", "r")
+    current_backlight_file = open(BACKLIGHT_FILE, "r")
     current_backlight = int(current_backlight_file.read())
     current_backlight_file.close()
 
     #if in read mode
     if mode == mode.READ:
-        print repr(current_backlight)    #print current brightness
+        print(current_backlight)    #print current brightness
         sys.exit(0)  #exit
 
     #find max brightness
-    max_backlight_file = open("/sys/class/backlight/intel_backlight/max_brightness", "r")
+    max_backlight_file = open(BACKLIGHT_MAX, "r")
     max_backlight = int(max_backlight_file.read())
     max_backlight_file.close()
 
@@ -68,7 +72,7 @@ def parse_value(val, mode):
 
     #if it's a % set the change to be a percentage of the max value
     if is_percentage:
-        change = max_backlight * int(val) / 100
+        change = max_backlight * int(val) // 100
     #else set change to be the given value (absolute)
     else:
         change = int(val)
@@ -89,17 +93,22 @@ def parse_value(val, mode):
 
 #processes command arument (-i, -d etc)
 def process_command():
-    argc = len(sys.argv)
+    if len(sys.argv) <= 1:
+        print("Arguments needed, use -h for help")
+        return
+    
     #help
     if sys.argv[1].lower() == "-h":
-        show_help()
+        show_help(); return
     #read brightness
     elif sys.argv[1].lower() == "-r":
-        parse_value(-1, Mode.READ)
+        parse_value(0, Mode.READ); return
+    #not enough arguments
+    elif len(sys.argv) != 3:
+        print ("Invalid arguments, please provide a value."); return
     #invalud argument
-    elif len(sys.argv) != 3 or not re.match('^\d+%?$', sys.argv[2]):
-        print "Invalid arguments, use -h for help."
-        return
+    elif not re.match('^\d+%?$', sys.argv[2]):
+        print ("Invalid value provided."); return
     #increment brightness
     elif sys.argv[1].lower() == "-i":
         mode = Mode.INC
@@ -109,14 +118,15 @@ def process_command():
     #set brightness
     elif sys.argv[1].lower() == "-s":
         mode = Mode.SET
-
     #anything else
     else:
-        print "Invalid arguments, use -h for help."
+        print ("Invalid arguments, use -h for help.")
         return
 
     #parse value (2nd argument),  mode provided to calculate new brightness value
     parse_value(sys.argv[2], mode)
+
+
 #main function
 def main():
     #call process command function
